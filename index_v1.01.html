@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Skies & Seas: Fog of War (v1.01)</title>
+  <link rel="stylesheet" href="style_v1.01.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo">✦</div>
+      <div class="titles">
+        <h1>Skies &amp; Seas: Fog of War</h1>
+        <div class="sub">Battleship-like • Ships + Planes • Fog tokens • Recon • Air Superiority • Pass &amp; Play</div>
+      </div>
+    </div>
+    <div class="meta">
+      <span class="pill" id="pillVersion">v1.01</span>
+      <span class="pill" id="pillPhase">Setup</span>
+    </div>
+  </header>
+
+  <main class="app">
+    <section class="panel left">
+      <div class="panel-header">
+        <h2 id="leftTitle">Player 1 — Setup</h2>
+        <div class="panel-actions">
+          <button class="btn" id="btnNewGame">New Game</button>
+          <button class="btn" id="btnHowTo">How to Play</button>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="setup">Setup</button>
+        <button class="tab" data-tab="battle">Battle</button>
+      </div>
+
+      <div class="tab-panels">
+        <!-- SETUP -->
+        <div class="tab-panel active" id="panelSetup">
+          <div class="setup-grid">
+            <div class="card">
+              <h3>Current Player</h3>
+              <div class="row">
+                <div class="label">Player</div>
+                <div class="value" id="setupPlayerName">Player 1</div>
+              </div>
+              <div class="row">
+                <div class="label">Placing</div>
+                <div class="value" id="setupLayer">Sea</div>
+              </div>
+              <div class="row">
+                <div class="label">Orientation</div>
+                <div class="value" id="setupOrientation">Horizontal</div>
+              </div>
+              <div class="row">
+                <div class="label">Selected Unit</div>
+                <div class="value" id="setupUnit">Carrier (5)</div>
+              </div>
+
+              <div class="actions-col">
+                <div class="seg">
+                  <button class="btn small" id="btnLayerSea">Sea Grid</button>
+                  <button class="btn small ghost" id="btnLayerAir">Air Grid</button>
+                </div>
+                <div class="seg">
+                  <button class="btn small" id="btnRotate">Rotate (R)</button>
+                  <button class="btn small ghost" id="btnRandomize">Randomize</button>
+                </div>
+                <div class="seg">
+                  <button class="btn small danger" id="btnClearPlacement">Clear</button>
+                  <button class="btn small primary" id="btnLockIn">Lock In & Pass</button>
+                </div>
+              </div>
+              <p class="hint">Tip: Click the grid to place the selected unit. Use <kbd>R</kbd> to rotate.</p>
+            </div>
+
+            <div class="card">
+              <h3>Units to Place</h3>
+              <div class="units" id="unitsList"></div>
+              <p class="hint">Ships go on Sea. Planes go on Air. You must place everything to continue.</p>
+            </div>
+          </div>
+
+          <div class="boards">
+            <div class="board-wrap">
+              <div class="board-title">
+                <span>Sea Grid</span>
+                <span class="mini" id="seaStatus">0/17 occupied</span>
+              </div>
+              <div class="grid" id="gridSeaSetup" aria-label="Sea grid setup"></div>
+            </div>
+            <div class="board-wrap">
+              <div class="board-title">
+                <span>Air Grid</span>
+                <span class="mini" id="airStatus">0 occupied</span>
+              </div>
+              <div class="grid" id="gridAirSetup" aria-label="Air grid setup"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BATTLE -->
+        <div class="tab-panel" id="panelBattle">
+          <div class="battle-top">
+            <div class="card compact">
+              <h3>Turn</h3>
+              <div class="row">
+                <div class="label">Active Player</div>
+                <div class="value" id="battleActivePlayer">Player 1</div>
+              </div>
+              <div class="row">
+                <div class="label">Action</div>
+                <div class="value"><span id="battleAction">Strike</span> <span class="mini" id="battleActionHint"></span></div>
+              </div>
+              <div class="row">
+                <div class="label">Layer</div>
+                <div class="value">
+                  <div class="seg">
+                    <button class="btn small" id="btnBattleSea">Sea</button>
+                    <button class="btn small ghost" id="btnBattleAir">Air</button>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="label">Choose</div>
+                <div class="value">
+                  <div class="seg">
+                    <button class="btn small primary" id="btnActionStrike">Strike</button>
+                    <button class="btn small" id="btnActionRecon">Recon (3×3)</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="label">Air Superiority</div>
+                <div class="value" id="airSupStatus">—</div>
+              </div>
+
+              <div class="airq" id="airQuestionArea">
+                <div class="mini">One yes/no question available this turn:</div>
+                <div class="row tight">
+                  <select id="airQuestionSelect" class="select">
+                    <option value="none">Choose a question…</option>
+                    <option value="ship_col">Is there any SHIP in column…</option>
+                    <option value="ship_row">Is there any SHIP in row…</option>
+                    <option value="occ_col">Is there ANY occupied space (this layer) in column…</option>
+                    <option value="occ_row">Is there ANY occupied space (this layer) in row…</option>
+                  </select>
+                </div>
+                <div class="row tight">
+                  <input id="airQuestionValue" class="input" placeholder="Example: A or 5" maxlength="2" />
+                  <button class="btn small" id="btnAskAirQ">Ask</button>
+                </div>
+                <div class="mini" id="airQuestionAnswer"></div>
+              </div>
+
+              <div class="seg">
+                <button class="btn small" id="btnEndTurn">End Turn (Pass)</button>
+              </div>
+            </div>
+
+            <div class="card compact">
+              <h3>Scoreboard</h3>
+              <div class="score">
+                <div class="score-col">
+                  <div class="score-title">Player 1</div>
+                  <div class="score-row"><span>Ships remaining</span><b id="p1ShipsRemaining">—</b></div>
+                  <div class="score-row"><span>Active planes</span><b id="p1PlanesActive">—</b></div>
+                </div>
+                <div class="score-col">
+                  <div class="score-title">Player 2</div>
+                  <div class="score-row"><span>Ships remaining</span><b id="p2ShipsRemaining">—</b></div>
+                  <div class="score-row"><span>Active planes</span><b id="p2PlanesActive">—</b></div>
+                </div>
+              </div>
+              <p class="hint">Hits &amp; misses persist, but <b>Fog tokens</b> can hide intel. Use Recon to clear Fog and count occupancy.</p>
+            </div>
+
+            <div class="card compact">
+              <h3>Log</h3>
+              <div class="log" id="log"></div>
+            </div>
+          </div>
+
+          <div class="boards">
+            <div class="board-wrap">
+              <div class="board-title">
+                <span>Opponent Grid (Target)</span>
+                <span class="mini" id="targetInfo">Click to act</span>
+              </div>
+              <div class="grid" id="gridTarget" aria-label="Target grid"></div>
+            </div>
+            <div class="board-wrap">
+              <div class="board-title">
+                <span>Your Grids (Reference)</span>
+                <span class="mini" id="ownInfo">Sea &amp; Air</span>
+              </div>
+              <div class="two">
+                <div class="grid small" id="gridOwnSea" aria-label="Own sea grid"></div>
+                <div class="grid small" id="gridOwnAir" aria-label="Own air grid"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel right">
+      <div class="card">
+        <h3>Status</h3>
+        <div class="status" id="statusText">Place all ships and planes for Player 1.</div>
+        <div class="divider"></div>
+        <h3>Quick Rules</h3>
+        <ul class="rules">
+          <li><b>Strike:</b> choose Sea or Air, click a cell. Miss → Fog token appears.</li>
+          <li><b>Recon:</b> click a cell to scan a 3×3 area: clears Fog in that area and reports how many occupied spaces are inside.</li>
+          <li><b>Fog tokens</b> reduce certainty. Recon is the only way to reliably clear them.</li>
+          <li><b>Air Superiority:</b> if you have more active planes than your opponent, you may ask 1 yes/no question each turn.</li>
+          <li><b>Win:</b> sink all opponent ships (hit every ship space).</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Controls</h3>
+        <ul class="rules">
+          <li><kbd>R</kbd> rotate unit in setup</li>
+          <li><kbd>1</kbd> Sea grid (setup)</li>
+          <li><kbd>2</kbd> Air grid (setup)</li>
+          <li><kbd>Esc</kbd> close overlays</li>
+        </ul>
+      </div>
+
+      <div class="card footer">
+        <div class="mini">Built for pass-and-play. No accounts. No network. Works offline.</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Overlay: Pass Device -->
+  <div class="overlay hidden" id="overlayPass" role="dialog" aria-modal="true">
+    <div class="overlay-card">
+      <h2 id="overlayTitle">Pass the device</h2>
+      <p id="overlayText">Hand the device to the next player, then tap “I’m ready”.</p>
+      <div class="overlay-actions">
+        <button class="btn" id="btnOverlayCancel">Cancel</button>
+        <button class="btn primary" id="btnOverlayReady">I'm ready</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay: Modal -->
+  <div class="overlay hidden" id="overlayModal" role="dialog" aria-modal="true">
+    <div class="overlay-card">
+      <h2 id="modalTitle">Modal</h2>
+      <p id="modalBody">…</p>
+      <div class="overlay-actions">
+        <button class="btn primary" id="btnModalOk">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app_v1.01.js"></script>
+</body>
+</html>
