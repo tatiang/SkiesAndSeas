@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capstone Builder Pro</title>
+    <style>
+        :root {
+            --primary: #FF7675;
+            --secondary: #6C5CE7;
+            --accent: #FDCB6E;
+            --dark: #2D3436;
+            --light: #F5F6FA;
+            --locked: #d63031;
+            --unlocked: #00b894;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            text-shadow: 3px 3px 0px var(--secondary);
+        }
+
+        p.subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Input Area */
+        .input-group {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        input[type="text"] {
+            width: 90%;
+            padding: 15px;
+            border-radius: 10px;
+            border: 3px solid var(--secondary);
+            background-color: var(--light);
+            color: var(--dark);
+            font-size: 1.2rem;
+            text-align: center;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(255, 118, 117, 0.4);
+        }
+
+        /* The Slot Machine Interface */
+        .slot-machine {
+            background: #dfe6e9;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border-bottom: 8px solid var(--secondary);
+            max-width: 950px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .reels-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        .reel-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .lock-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: transform 0.2s;
+        }
+
+        .lock-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .lock-btn.is-locked {
+            filter: drop-shadow(0 0 5px var(--locked));
+        }
+
+        .label {
+            text-align: center;
+            margin-bottom: 5px;
+            font-weight: 800;
+            color: var(--dark);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .reel {
+            background-color: white;
+            color: var(--dark);
+            width: 100%;
+            height: 160px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            padding: 15px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.15);
+            border: 2px solid #b2bec3;
+            text-align: center;
+            overflow: hidden;
+            line-height: 1.3;
+            position: relative;
+        }
+        
+        /* Visual cue for locked state */
+        .reel.locked-state {
+            background-color: #fab1a0;
+            border-color: var(--locked);
+            color: #631818;
+        }
+
+        .blur {
+            filter: blur(5px);
+            opacity: 0.6;
+        }
+
+        /* Action Buttons */
+        button#spinBtn {
+            background: var(--secondary);
+            color: white;
+            font-size: 1.4rem;
+            font-weight: bold;
+            padding: 15px 60px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: 0 5px 0 #4834d4, 0 10px 10px rgba(0,0,0,0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button#spinBtn:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #4834d4, 0 2px 2px rgba(0,0,0,0.2);
+        }
+
+        button#spinBtn:disabled {
+            background: #b2bec3;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: translateY(4px);
+        }
+
+        /* Result Popup Area */
+        .result-box {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            display: none; 
+            text-align: center;
+            animation: slideUp 0.5s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+            max-width: 800px;
+            position: relative;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .highlight {
+            color: var(--accent);
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .copy-btn {
+            background-color: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .copy-btn:hover {
+            background-color: var(--accent);
+            color: var(--dark);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .reels-container { flex-direction: column; }
+            .reel { height: 80px; }
+            .input-group { width: 95%; }
+            .lock-btn { align-self: flex-end; margin-top: -30px; margin-right: 10px; z-index: 10; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🚀 Capstone Builder</h1>
+    <p class="subtitle">Enter your Essential Question. Lock the columns you like. Spin the rest!</p>
+
+    <div class="input-group">
+        <input type="text" id="essentialQuestion" placeholder="E.g. How does architecture affect mood?" />
+    </div>
+
+    <div class="slot-machine">
+        <div class="reels-container">
+            
+            <div class="reel-wrapper">
+                <button class="lock-btn" id="lock1" onclick="toggleLock(0)">🔓</button>
+                <span class="label">Create a...</span>
+                <div class="reel" id="reel1">
+                    <span class="reel-content">???</span>
+                </div>
+            </div>
+
+            <div class="reel-wrapper">
+                <button class="lock-btn" id="lock2" onclick="toggleLock(1)">🔓</button>
+                <span class="label">That...</span>
+                <div class="reel" id="reel2">
+                    <span class="reel-content">???</span>
+                </div>
+            </div>
+
+            <div class="reel-wrapper">
+                <button class="lock-btn" id="lock3" onclick="toggleLock(2)">🔓</button>
+                <span class="label">Using/While...</span>
+                <div class="reel" id="reel3">
+                    <span class="reel-content">???</span>
+                </div>
+            </div>
+
+        </div>
+
+        <button id="spinBtn" onclick="spinReels()">Generate Idea</button>
+    </div>
+
+    <div class="result-box" id="resultBox">
+        <p class="result-text" id="finalResult"></p>
+        <button class="copy-btn" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+    </div>
+
+    <script>
+        // --- DATA ARRAYS ---
+        const formats = [
+            "Documentary Video", "Podcast Series", "Physical Model", 
+            "Website / Blog", "Graphic Novel", "Photo Essay", 
+            "Video Game level", "Live Speech", "Invention Prototype", 
+            "How-To Guide", "Scientific Journal", "Art Installation"
+        ];
+
+        const actions = [
+            "Teaches a Difficult Skill", "Investigates a Mystery", 
+            "Debates a Controversy", "Solves a Community Problem", 
+            "Predicts the Future", "Preserves a Memory", 
+            "Tests a Wild Theory", "Celebrates a Hero", 
+            "Improves a Daily Routine", "Exposes a Hidden Truth"
+        ];
+
+        const twists = [
+            "using only Recycled Materials", "using Humor & Comedy", 
+            "without using any Words", "interviewing 3 Strangers", 
+            "collaborating with a Mentor", "using Stop-Motion Animation", 
+            "on a $0 Budget", "incorporating Original Music", 
+            "focusing on Sustainability", "using Historical Data"
+        ];
+
+        // --- STATE & ELEMENTS ---
+        let lockedState = [false, false, false];
+        const reels = [
+            document.getElementById('reel1'),
+            document.getElementById('reel2'),
+            document.getElementById('reel3')
+        ];
+        const lockBtns = [
+            document.getElementById('lock1'),
+            document.getElementById('lock2'),
+            document.getElementById('lock3')
+        ];
+        
+        const btn = document.getElementById('spinBtn');
+        const resultBox = document.getElementById('resultBox');
+        const finalResult = document.getElementById('finalResult');
+        const questionInput = document.getElementById('essentialQuestion');
+
+        // --- FUNCTIONS ---
+
+        function toggleLock(index) {
+            lockedState[index] = !lockedState[index];
+            const btn = lockBtns[index];
+            const reel = reels[index];
+
+            if (lockedState[index]) {
+                btn.innerHTML = "🔒";
+                btn.classList.add("is-locked");
+                reel.classList.add("locked-state");
+            } else {
+                btn.innerHTML = "🔓";
+                btn.classList.remove("is-locked");
+                reel.classList.remove("locked-state");
+            }
+        }
+
+        function spinReels() {
+            // UI Reset
+            btn.disabled = true;
+            btn.textContent = "Spinning...";
+            resultBox.style.display = 'none';
+            
+            // Blur only unlocked reels
+            reels.forEach((reel, i) => {
+                if (!lockedState[i]) reel.querySelector('.reel-content').parentElement.classList.add('blur');
+            });
+
+            // Timers for spinning animation
+            let timers = [];
+            
+            if (!lockedState[0]) {
+                timers[0] = setInterval(() => { 
+                    reels[0].querySelector('.reel-content').textContent = formats[Math.floor(Math.random() * formats.length)]; 
+                }, 50);
+            }
+            if (!lockedState[1]) {
+                timers[1] = setInterval(() => { 
+                    reels[1].querySelector('.reel-content').textContent = actions[Math.floor(Math.random() * actions.length)]; 
+                }, 50);
+            }
+            if (!lockedState[2]) {
+                timers[2] = setInterval(() => { 
+                    reels[2].querySelector('.reel-content').textContent = twists[Math.floor(Math.random() * twists.length)]; 
+                }, 50);
+            }
+
+            // STOPPING LOGIC
+            // We set timeouts to clear intervals and set final values
+            
+            // Reel 1 stop
+            setTimeout(() => {
+                if (!lockedState[0]) {
+                    clearInterval(timers[0]);
+                    reels[0].querySelector('.reel-content').textContent = formats[Math.floor(Math.random() * formats.length)];
+                    reels[0].classList.remove('blur');
+                }
+            }, 1000);
+
+            // Reel 2 stop
+            setTimeout(() => {
+                if (!lockedState[1]) {
+                    clearInterval(timers[1]);
+                    reels[1].querySelector('.reel-content').textContent = actions[Math.floor(Math.random() * actions.length)];
+                    reels[1].classList.remove('blur');
+                }
+            }, 1800);
+
+            // Reel 3 stop
+            setTimeout(() => {
+                if (!lockedState[2]) {
+                    clearInterval(timers[2]);
+                    reels[2].querySelector('.reel-content').textContent = twists[Math.floor(Math.random() * twists.length)];
+                    reels[2].classList.remove('blur');
+                }
+                
+                // Finish up
+                btn.disabled = false;
+                btn.textContent = "Spin Again";
+                showSummary();
+            }, 2600);
+        }
+
+        function showSummary() {
+            const format = reels[0].querySelector('.reel-content').textContent;
+            const action = reels[1].querySelector('.reel-content').textContent;
+            const twist = reels[2].querySelector('.reel-content').textContent;
+            const topic = questionInput.value.trim();
+            const intro = topic ? `For your question <em>"${topic}"</em>, ` : "";
+            
+            resultBox.style.display = 'block';
+            finalResult.innerHTML = `
+                ${intro} you could create a...<br><br>
+                <span class="highlight">${format}</span><br>
+                that <span class="highlight">${action}</span><br>
+                <span class="highlight">${twist}</span>.
+            `;
+        }
+
+        function copyToClipboard() {
+            const textToCopy = finalResult.innerText;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.innerText;
+                btn.innerText = "✅ Copied!";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
